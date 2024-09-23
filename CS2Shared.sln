@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.34929.205
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CS2Shared", "CS2Shared\CS2Shared.shproj", "{40793EA5-CC36-4B43-AAF2-B8CA3CBEF13D}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CS2Shared.Patch", "CS2Shared.Patch\CS2Shared.Patch.shproj", "{FE75893F-4D5B-4381-84C0-DA65BE049D12}"
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2100E4B3-267C-4D7A-9E13-36512A5D88F1}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		CS2Shared\CS2Shared.projitems*{40793ea5-cc36-4b43-aaf2-b8ca3cbef13d}*SharedItemsImports = 13
+		CS2Shared.Patch\CS2Shared.Patch.projitems*{fe75893f-4d5b-4381-84c0-da65be049d12}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal
