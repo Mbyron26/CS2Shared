@@ -1,10 +1,10 @@
 using Colossal.IO.AssetDatabase.Internal;
+using Colossal.Json;
 using Colossal.Localization;
 using Colossal.Logging;
 using CS2Shared.Manager;
 using CS2Shared.Tools;
 using Game.SceneFlow;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +37,7 @@ public sealed class ModLocalizationManager : IManager<string, ILocalization> {
             return;
         }
         try {
-            var str = JsonConvert.SerializeObject(ModSetting.LocaleSource.Source, Formatting.Indented);
+            var str = JSON.Dump(ModSetting.LocaleSource.Source);
             File.WriteAllText(SerializePath, str);
             Logger.Info($"Serialized localization, path: {SerializePath}");
         }
@@ -225,7 +225,7 @@ public sealed class ModLocalizationManager : IManager<string, ILocalization> {
             var localeID = Path.GetFileNameWithoutExtension(file.Name);
             if (!string.IsNullOrEmpty(localeID)) {
                 var json = File.ReadAllText(file.FullName);
-                var source = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+                var source = JSON.Load(json).Make<Dictionary<string, string>>();
                 ENLocaleSource.Source.Where(_ => !source.ContainsKey(_.Key)).ToList().ForEach(_ => {
                     Logger.Warn($"The {localeID} source missing key [{_.Key}] is now filled");
                     source.Add(_.Key, _.Value);
