@@ -6,10 +6,10 @@ using System;
 
 namespace CS2Shared.Common;
 
-public partial class GameSystemExtensionBase : GameSystemBase {
+public partial class GameSystemBaseExtension : GameSystemBase {
     protected ILog Logger { get; } = LogManager.GetLogger(AssemblyTools.CurrentAssemblyName);
     protected Type SystemType { get; private set; }
-    protected string SystemName =>SystemType is null? string.Empty: SystemType.Name;
+    protected string SystemName => SystemType is null ? string.Empty : SystemType.Name;
     protected GameMode Mode { get; set; }
     protected bool InMainMenu => Mode == GameMode.MainMenu;
     protected bool InGame => Mode == GameMode.Game;
@@ -31,5 +31,4 @@ public partial class GameSystemExtensionBase : GameSystemBase {
     protected override void OnUpdate() { }
 
     protected override void OnGamePreload(Purpose purpose, GameMode mode) => Mode = mode;
-
 }

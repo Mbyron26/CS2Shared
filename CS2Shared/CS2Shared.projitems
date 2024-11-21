@@ -9,15 +9,19 @@
     <Import_RootNamespace>CS2Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)common\IModSetting.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)common\ModBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\ModSettingBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)common\SystemExtensionBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\DebugSystem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)extension\StringBuilderExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\IModSetting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\ModBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\ModSettingBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\GameSystemBaseExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\SettingChildClassBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)common\UISystemBaseExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)extension\StopwatchExtension.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)localization\ILocalization.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Localization\ILocalization.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Localization\LocaleSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)localization\ModLocalizationManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)localization\LocalizationManagerExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Localization\ModLocalizationManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Localization\LocalizationManagerExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)manager\IManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)manager\ManagerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)tools\ModTools.cs" />
@@ -29,5 +33,6 @@
     <Folder Include="$(MSBuildThisFileDirectory)Tools\" />
     <Folder Include="$(MSBuildThisFileDirectory)Extension\" />
     <Folder Include="$(MSBuildThisFileDirectory)Manager\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Settings\" />
   </ItemGroup>
 </Project>

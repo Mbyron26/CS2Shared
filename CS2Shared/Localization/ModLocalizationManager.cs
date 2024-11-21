@@ -4,6 +4,7 @@ using Colossal.Localization;
 using Colossal.Logging;
 using CS2Shared.Manager;
 using CS2Shared.Tools;
+using Game.Modding;
 using Game.SceneFlow;
 using System;
 using System.Collections.Generic;
@@ -37,9 +38,11 @@ public sealed class ModLocalizationManager : IManager<string, ILocalization> {
             return;
         }
         try {
-            var str = JSON.Dump(ModSetting.LocaleSource.Source);
+            var raw = new Dictionary<string, string>(ENLocaleSource.Source);
+            var isRemoveModNameLocale = raw.Remove($"Options.SECTION[" + ModSetting.Id + "]");
+            var str = JSON.Dump(raw);
             File.WriteAllText(SerializePath, str);
-            Logger.Info($"Serialized localization, path: {SerializePath}");
+            Logger.Info($"Serialized localization, removed mod name locale: {isRemoveModNameLocale}, path: {SerializePath}");
         }
         catch (Exception e) {
             Logger.Error(e, "Serialize localization failed");
@@ -52,8 +55,7 @@ public sealed class ModLocalizationManager : IManager<string, ILocalization> {
         EnsureModSettingLoaceleId();
         NotifyFallbackLocaleIdChanged(false);
         var useGameLanguage = ModSetting.LocaleId == USE_GAME_LANGUAGE;
-        LocaleSource source;
-        if (useGameLanguage ? TryGetValueFromSources(GameActiveLocaleId, out source) : TryGetValueFromSources(ModSetting.LocaleId, out source)) {
+        if (useGameLanguage ? TryGetValueFromSources(GameActiveLocaleId, out LocaleSource source) : TryGetValueFromSources(ModSetting.LocaleId, out source)) {
             CurrentLocaleSource = source;
         }
         else {
@@ -90,7 +92,7 @@ public sealed class ModLocalizationManager : IManager<string, ILocalization> {
 #endif
         }
         else {
-            if (FallbackLocaleId != GameActiveLocaleId) {       
+            if (FallbackLocaleId != GameActiveLocaleId) {
                 RemoveSource();
                 NotifyFallbackLocaleIdChanged();
                 if (TryGetValueFromSources(ModSetting.LocaleId, out var source)) {
@@ -200,22 +202,23 @@ public sealed class ModLocalizationManager : IManager<string, ILocalization> {
 
     public string GetTranslationProgressPercentage(Dictionary<string, string> langDictionary) => $"{GetTranslationProgress(langDictionary)}%";
 
-    public int GetTranslationProgress(Dictionary<string, string> langDictionary) => (int)((double)CountTranslatedItems(langDictionary) / LocaleSources[LocaleSource.EN_LOCALE_ID].Source.Count * 100);
+    public int GetTranslationProgress(Dictionary<string, string> langDictionary) => (int)((double)CountTranslatedItems(langDictionary) / (LocaleSources[LocaleSource.EN_LOCALE_ID].Source.Count - ENLocaleSource.Source.Count(_ => _.Value == string.Empty) - 1) * 100);
 
     private int CountTranslatedItems(Dictionary<string, string> langDictionary) {
         var enDictionary = LocaleSources[LocaleSource.EN_LOCALE_ID].Source;
-        return langDictionary.Count(_ => enDictionary.ContainsKey(_.Key) && !string.IsNullOrEmpty(_.Value) && _.Value != enDictionary[_.Key]);
+        return langDictionary.Count(_ => enDictionary.ContainsKey(_.Key) && enDictionary[_.Key] != string.Empty && _.Value != enDictionary[_.Key]);
     }
 
     private void LoadAllLocaleSource() {
         StringBuilder stringBuilder = new();
         stringBuilder.Append("Game supported locales: ");
         GetSupportedLocales().ForEach(_ => stringBuilder.Append($"{_} "));
-        stringBuilder.AppendLine();
-        stringBuilder.Append("Added Locale source: ");
+        Logger.Info(stringBuilder.ToString());
+        stringBuilder.Clear();
+        var added = "Added Locale source: ";
         LocaleSources.Clear();
         LocaleSources.Add(LocaleSource.EN_LOCALE_ID, ModSetting.LocaleSource);
-        stringBuilder.Append($"{LocaleSource.EN_LOCALE_ID} ");
+        added += $"{LocaleSource.EN_LOCALE_ID} ";
         var directory = Path.Combine(Path.GetDirectoryName(ModPath), "Localization");
         if (!Directory.Exists(directory)) {
             Logger.Warn("Localization folder not found");
@@ -227,17 +230,26 @@ public sealed class ModLocalizationManager : IManager<string, ILocalization> {
                 var json = File.ReadAllText(file.FullName);
                 var source = JSON.Load(json).Make<Dictionary<string, string>>();
                 ENLocaleSource.Source.Where(_ => !source.ContainsKey(_.Key)).ToList().ForEach(_ => {
-                    Logger.Warn($"The {localeID} source missing key [{_.Key}] is now filled");
+                    if (!_.Key.Contains("Options.SECTION["))
+                        stringBuilder.AppendLine($"The {localeID} source missing key [{_.Key}] is now filled");
                     source.Add(_.Key, _.Value);
                 });
-                var localeSource = new LocaleSource(localeID, source);
-                localeSource.TranslationProgress = GetTranslationProgressPercentage(source);
+                var localeSource = new LocaleSource(localeID, source) {
+                    TranslationProgress = GetTranslationProgressPercentage(source)
+                };
                 LocaleSources.Add(localeID, localeSource);
-                stringBuilder.Append($"{localeID} ");
+                added += $"{localeID} ";
             }
         }
+        stringBuilder.AppendLine(added);
         Logger.Info(stringBuilder.ToString());
     }
+
+    public void ExportLocalization() => File.WriteAllText(SerializePath, DumpLocalization());
+
+    public void LogLocalization() => Logger.Info(DumpLocalization());
+
+    public string DumpLocalization() => JSON.Dump(GameLocalizationManager.activeDictionary.entries.ToDictionary(_ => _.Key, _ => _.Value));
 
     public void OnCreate(string t1, ILocalization t2) {
         ModPath = t1;

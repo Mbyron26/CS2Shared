@@ -3,10 +3,12 @@ using Colossal.Logging;
 using CS2Shared.Extension;
 using CS2Shared.Localization;
 using CS2Shared.Manager;
+using CS2Shared.Settings;
 using CS2Shared.Tools;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
+using Game.Serialization;
 using Game.UI.Menu;
 using System;
 
@@ -52,7 +54,12 @@ public abstract class ModBase {
         OnPostDispose();
     }
 
-    protected virtual void CreateSystem(UpdateSystem updateSystem) { }
+    protected virtual void CreateSystem(UpdateSystem updateSystem) {
+#if DEBUG
+        updateSystem.UpdateAt<DebugSystem>(SystemUpdatePhase.MainLoop);
+        updateSystem.UpdateAfter<PostDeserialize<DebugSystem>>(SystemUpdatePhase.Deserialize);
+#endif
+    }
 
     protected void LoadSetting(IModSetting defaultModSetting = null) => AssetDatabase.global.LoadSettings(AssemblyTools.GetCurrentAssemblyName(), Setting, defaultModSetting);
 

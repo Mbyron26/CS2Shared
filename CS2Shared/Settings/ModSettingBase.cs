@@ -1,4 +1,6 @@
 using Colossal.Logging;
+using CS2Shared.Common;
+using CS2Shared.Extension;
 using CS2Shared.Localization;
 using CS2Shared.Manager;
 using CS2Shared.Tools;
@@ -12,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Entities;
 
-namespace CS2Shared.Common;
+namespace CS2Shared.Settings;
 
 public abstract class ModSettingBase : ModSetting, IModSetting {
     public event Func<string, IModSetting> EventBeforeRegister;
@@ -50,8 +52,15 @@ public abstract class ModSettingBase : ModSetting, IModSetting {
     [SettingsUISection(General, ModInfo)]
     public string Version => AssemblyTools.CurrentAssemblyVersion.ToString(3);
 
+
+
+#if DEBUG
+    [SettingsUISection(General, ModInfo)]
+    public string ReleaseDate => ModBase.Instance is null ? "Null" : DataDirectory.GetModDirectoryCreationTime(ModBase.Instance.ModAsset);
+#else
     [SettingsUISection(General, ModInfo)]
     public string ReleaseDate => ModBase.Instance is null ? "Null" : ModBase.Instance.VersionDate.ToString("yyyy/MM/dd");
+#endif
 
     [SettingsUISection(General, ModInfo)]
     [SettingsUIDropdown(typeof(ModSettingBase), nameof(GetLocaleIdOptions))]
@@ -189,6 +198,8 @@ public abstract class ModSettingBase : ModSetting, IModSetting {
     public string GetOptionDescLocaleIDExtension(string optionName) => "Options.OPTION_DESCRIPTION[" + id + "." + nameof(ModSettingBase) + "." + optionName + "]";
     public string GetOptionWarningLocaleIDExtension(string optionName) => "Options.WARNING[" + id + "." + nameof(ModSettingBase) + "." + optionName + "]";
     public static string GetOptionLanguageLocaleIDExtension(string id) => LocaleSource.GetLocaleIdKey(id);
+
+    public string GetUILocaleID(string id) => $"{AssemblyTools.CurrentAssemblyName}.UI[{id}]";
 
     public virtual void Register() {
         if (IsRegistered)
